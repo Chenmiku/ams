@@ -1,9 +1,9 @@
 package org
 
 import (
+	"ams/dapi/api/auth/session"
+	"ams/dapi/o/org/user"
 	"http/web"
-	"myproject/dapi/api/auth/session"
-	"myproject/dapi/o/org/user"
 	"net/http"
 	"strconv"
 	"strings"

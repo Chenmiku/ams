@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"myproject/dapi/x/mlog"
+	"ams/dapi/x/mlog"
 	"time"
 )
 

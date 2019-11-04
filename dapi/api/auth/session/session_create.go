@@ -2,8 +2,8 @@ package session
 
 import (
 	"http/web"
-	"myproject/dapi/o/auth/session"
-	"myproject/dapi/o/org/user"
+	"ams/dapi/o/auth/session"
+	"ams/dapi/o/org/user"
 	"time"
 )
 

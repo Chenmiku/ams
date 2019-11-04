@@ -1,8 +1,8 @@
 package private
 
 import (
+	"ams/dapi/api/auth/session"
 	"http/web"
-	"myproject/dapi/api/auth/session"
 	"net/http"
 )
 

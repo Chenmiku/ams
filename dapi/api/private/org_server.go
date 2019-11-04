@@ -2,7 +2,7 @@ package private
 
 import (
 	"http/web"
-	"myproject/dapi/api/private/org"
+	"ams/dapi/api/private/org"
 	"net/http"
 )
 

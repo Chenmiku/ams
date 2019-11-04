@@ -3,10 +3,10 @@ package api
 import (
 	"encoding/json"
 	"http/web"
-	"myproject/dapi/api/auth"
-	"myproject/dapi/api/private"
-	"myproject/dapi/api/public"
-	"myproject/dapi/config"
+	"ams/dapi/api/auth"
+	"ams/dapi/api/private"
+	"ams/dapi/api/public"
+	"ams/dapi/config"
 
 	"net/http"
 )

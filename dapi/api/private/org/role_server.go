@@ -1,10 +1,11 @@
 package org
 
 import (
-	"gopkg.in/mgo.v2/bson"
+	"ams/dapi/o/org/role"
 	"http/web"
-	"myproject/dapi/o/org/role"
 	"net/http"
+
+	"gopkg.in/mgo.v2/bson"
 )
 
 type RoleServer struct {

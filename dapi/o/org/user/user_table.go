@@ -1,13 +1,13 @@
 package user
 
 import (
+	"ams/dapi/o/model"
 	"errors"
 	"math/rand"
-	"myproject/dapi/o/model"
 	"time"
 )
 
-var TableUser = model.NewTable("users")
+var TableUser = model.NewTable(&User{})
 
 func (b *User) Create() error {
 	if err := b.validate(); err != nil {
@@ -28,11 +28,11 @@ func (b *User) Create() error {
 
 	b.CTime = time.Now().Unix()
 
-	return TableUser.Create(b)
+	return model.Create(b)
 }
 
-func MarkDelete(id string) error {
-	return TableUser.MarkDelete(id)
+func MarkDelete(b *User) error {
+	return model.MarkDelete(b)
 }
 
 func (v *User) UpdateById(newvalue *User) error {
@@ -43,7 +43,7 @@ func (v *User) UpdateById(newvalue *User) error {
 		}
 	}
 
-	return TableUser.UnsafeUpdateByID(v.ID, newvalue)
+	return model.UpdateById(v, newvalue)
 }
 
 func (v *User) UpdatePass(newValue string) error {
@@ -58,7 +58,7 @@ func (v *User) UpdatePass(newValue string) error {
 		}
 		update["password"] = newValue
 	}
-	return TableUser.UnsafeUpdateByID(v.ID, update)
+	return model.UpdateById(v, update)
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

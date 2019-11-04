@@ -2,8 +2,8 @@ package public
 
 import (
 	"http/web"
-	"myproject/dapi/api/public/org"
-	"myproject/dapi/config"
+	"ams/dapi/api/public/org"
+	"ams/dapi/config"
 	"net/http"
 )
 

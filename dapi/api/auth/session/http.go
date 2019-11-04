@@ -1,13 +1,14 @@
 package session
 
 import (
-	"myproject/dapi/o/auth/session"
-	"myproject/dapi/x/mlog"
+	"ams/dapi/o/auth/session"
+	"ams/dapi/x/mlog"
 	"net/http"
+
+	"strings"
 
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/net/context"
-	"strings"
 )
 
 var tokenHeader = "Authorization"

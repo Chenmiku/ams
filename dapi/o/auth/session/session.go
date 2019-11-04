@@ -1,9 +1,9 @@
 package session
 
 import (
+	"ams/dapi/o/org/user"
 	"db/mgo"
 	"encoding/json"
-	"myproject/dapi/o/org/user"
 )
 
 type Session struct {

@@ -2,7 +2,7 @@ package org
 
 import (
 	"http/web"
-	"myproject/dapi/o/org/user"
+	"ams/dapi/o/org/user"
 	"net/http"
 	"strconv"
 	"strings"
