@@ -31,9 +31,6 @@ func (phs *ProjectHttpServer) addStaticHandler(s *http.ServeMux) {
 
 	var device = vstatic.NewVersionStatic(staticConfig.PlayerFolder)
 	s.Handle("/player/", http.StripPrefix("/player", webAssetGzipHandler(device)))
-
-	var seller = vstatic.NewVersionStatic(staticConfig.SellerFolder)
-	s.Handle("/seller/", http.StripPrefix("/seller", webAssetGzipHandler(seller)))
 }
 
 func (phs *ProjectHttpServer) makeHandler() http.Handler {
@@ -41,15 +38,10 @@ func (phs *ProjectHttpServer) makeHandler() http.Handler {
 	phs.addStaticHandler(server)
 	// application specific
 	apiServer := api.NewApiServer(phs.pc)
-	// service := service.NewServiceServer()
 
 	server.Handle("/api/",
 		gziphandler.GzipHandler(http.StripPrefix("/api", apiServer)),
 	)
-
-	// server.Handle("/service/",
-	// 	http.StripPrefix("/service", service),
-	// )
 
 	phs.ready <- struct{}{}
 	return server

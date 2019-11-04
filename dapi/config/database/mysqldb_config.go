@@ -1,12 +1,13 @@
 package database
 
 import (
-	"ams/dapi/config/cons"
-	"db/mgo"
+	// "ams/dapi/config/cons"
 	"fmt"
+	"github.com/jinzhu/gorm"
 )
 
 type DatabaseConfig struct {
+	Driver   string
 	DBHost   string
 	DBName   string
 	UserName string
@@ -18,5 +19,9 @@ func (o DatabaseConfig) String() string {
 }
 
 func (o *DatabaseConfig) Check() {
-	mgo.Register(cons.DB_ID, o.DBName, o.DBHost, o.UserName, o.PassWord)
+	db, err := gorm.Open(o.Driver, o.UserName+":"+o.PassWord+"@tcp("+o.DBHost+")/"+o.DBName+"?charset=utf8&parseTime=True")
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
 }

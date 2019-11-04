@@ -4,20 +4,25 @@ import (
 	"ams/dapi/o/model"
 )
 
-//TableBranch : Table in DB
-var RoleTable = model.NewTable("role")
+//TableRole : Table in DB
+func (b *Role) CreateTable() {
+	model.NewTable(b)
+}
 
 //Create :
 func (b *Role) Create() error {
-	return RoleTable.Create(b)
+	model.Create(b)
+	return nil
 }
 
 //MarkDelete :
-func MarkDelete(id string) error {
-	return RoleTable.MarkDelete(id)
+func (b *Role) MarkDelete() error {
+	model.MarkDelete(b)
+	return nil
 }
 
 //Update :
 func (v *Role) Update(newValue *Role) error {
-	return RoleTable.UpdateByID(v.ID, newValue)
+	model.UpdateByID(v, newValue)
+	return nil
 }

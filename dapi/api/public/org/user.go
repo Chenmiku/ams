@@ -1,8 +1,8 @@
 package org
 
 import (
-	"http/web"
 	"ams/dapi/o/org/user"
+	"http/web"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,6 +22,7 @@ func newPublicUserAPI() *userAPI {
 
 func (uapi *userAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	var u = &user.User{}
+	u.CreateTable()
 	uapi.MustDecodeBody(r, u)
 	u.Email = strings.ToLower(u.Email)
 	err := u.Create()

@@ -7,15 +7,18 @@ import (
 	"time"
 )
 
-var TableUser = model.NewTable(&User{})
+func (b *User) CreateTable() {
+	model.NewTable(b)
+}
 
 func (b *User) Create() error {
 	if err := b.validate(); err != nil {
 		return errors.New("validate_user_failed")
 	}
-	if err := b.ensureUniqueEmail(); err != nil {
-		return errors.New("email_already_exists")
-	}
+
+	// if err := b.ensureUniqueEmail(); err != nil {
+	// 	return errors.New("email_already_exists")
+	// }
 
 	//pass := randSeq(6)
 	b.Password = "123456"
@@ -26,24 +29,27 @@ func (b *User) Create() error {
 		return errors.New("hash_password_failed")
 	}
 
-	b.CTime = time.Now().Unix()
+	b.CreatedAt = time.Now()
 
-	return model.Create(b)
+	model.Create(b)
+	return nil
 }
 
 func MarkDelete(b *User) error {
-	return model.MarkDelete(b)
+	model.MarkDelete(b)
+	return nil
 }
 
 func (v *User) UpdateById(newvalue *User) error {
 	newvalue.validate()
-	if newvalue.Email != v.Email {
-		if err := newvalue.ensureUniqueEmail(); err != nil {
-			return errors.New("email_already_exists")
-		}
-	}
+	// if newvalue.Email != v.Email {
+	// 	if err := newvalue.ensureUniqueEmail(); err != nil {
+	// 		return errors.New("email_already_exists")
+	// 	}
+	// }
 
-	return model.UpdateById(v, newvalue)
+	model.UpdateByID(v, newvalue)
+	return nil
 }
 
 func (v *User) UpdatePass(newValue string) error {
@@ -58,7 +64,8 @@ func (v *User) UpdatePass(newValue string) error {
 		}
 		update["password"] = newValue
 	}
-	return model.UpdateById(v, update)
+	model.UpdateByID(v, update)
+	return nil
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
