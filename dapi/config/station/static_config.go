@@ -9,9 +9,9 @@ import (
 type StaticConfig struct {
 	ProjectFolder string
 	AdminFolder   string
-	// AppUpdate     string
-	PlayerFolder string
-	// PlayerUpdate  string
+	AppUpdate     string
+	PlayerFolder  string
+	PlayerUpdate  string
 }
 
 func (u *StaticConfig) Check() {

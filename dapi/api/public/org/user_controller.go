@@ -2,11 +2,14 @@ package org
 
 import (
 	"ams/dapi/o/org/user"
+	//"encoding/json"
 	"http/web"
+	//"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"fmt"
 	"github.com/jinzhu/gorm"
 )
 
@@ -26,8 +29,11 @@ func newPublicUserAPI() *userAPI {
 func (uapi *userAPI) handleCreate(w http.ResponseWriter, r *http.Request) {
 	var u = &user.User{}
 	uapi.MustDecodeBody(r, u)
+	u.Prepare()
 	u.Email = strings.ToLower(u.Email)
+	fmt.Println(*u)
 	user, err := u.Create(uapi.db)
+	fmt.Println(&user)
 	if err != nil {
 		uapi.ErrorMessage(w, err.Error())
 	} else {

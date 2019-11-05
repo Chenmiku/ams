@@ -2,6 +2,7 @@ package private
 
 import (
 	"ams/dapi/api/auth/session"
+	"github.com/jinzhu/gorm"
 	"http/web"
 	"net/http"
 )
@@ -9,6 +10,7 @@ import (
 type PrivateServer struct {
 	web.JsonServer
 	*http.ServeMux
+	db *gorm.DB
 }
 
 func NewPrivateServer() *PrivateServer {
@@ -21,7 +23,7 @@ func NewPrivateServer() *PrivateServer {
 }
 
 func (s *PrivateServer) mustBeAdmin(r *http.Request) {
-	var u = session.MustGet(r)
+	var u = session.MustGet(r, s.db)
 	if !u.Role.IsAdmin() {
 		panic(web.Unauthorized("unauthorize_access_to_admin"))
 	}
@@ -52,7 +54,7 @@ func (s *PrivateServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// 	return
 	// }
 
-	newContext, err := session.NewContext(r.Context(), session.MustGet(r))
+	newContext, err := session.NewContext(r.Context(), session.MustGet(r, s.db))
 
 	if err != nil {
 		panic(web.InternalServerError("session_context_error"))

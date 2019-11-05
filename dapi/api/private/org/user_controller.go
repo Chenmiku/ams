@@ -3,6 +3,7 @@ package org
 import (
 	"ams/dapi/api/auth/session"
 	"ams/dapi/o/org/user"
+	"github.com/jinzhu/gorm"
 	"http/web"
 	"net/http"
 	"strconv"
@@ -12,6 +13,7 @@ import (
 type UserServer struct {
 	web.JsonServer
 	*http.ServeMux
+	db *gorm.DB
 }
 
 func NewUserServer() *UserServer {
@@ -46,21 +48,21 @@ func (s *UserServer) Session(w http.ResponseWriter, r *http.Request) *session.Se
 
 func (s *UserServer) HandleAllUser(w http.ResponseWriter, r *http.Request) {
 
-	sortBy := r.URL.Query().Get("sort_by")
-	sortOrder := r.URL.Query().Get("sort_order")
+	// sortBy := r.URL.Query().Get("sort_by")
+	// sortOrder := r.URL.Query().Get("sort_order")
 
-	pageSize := StrToInt(r.URL.Query().Get("page_size"))
-	pageNumber := StrToInt(r.URL.Query().Get("page_number"))
+	// pageSize := StrToInt(r.URL.Query().Get("page_size"))
+	// pageNumber := StrToInt(r.URL.Query().Get("page_number"))
 
-	var res = []user.User{}
-	count, err := user.GetAll(pageSize, pageNumber, sortBy, sortOrder, &res)
+	//var res = []user.User{}
+	res, err := user.GetAll(s.db)
 
 	if err != nil {
 		s.SendErrorMessage(w, err)
 	} else {
 		s.SendDataSuccess(w, map[string]interface{}{
 			"users": res,
-			"count": count,
+			//"count": count,
 		})
 	}
 }
@@ -69,21 +71,21 @@ func (s *UserServer) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	var u = &user.User{}
 	s.MustDecodeBody(r, u)
 	u.Email = strings.ToLower(u.Email)
-	err := u.Create()
+	user, err := u.Create(s.db)
 	if err != nil {
 		s.ErrorMessage(w, err.Error())
 	} else {
-		s.SendDataSuccess(w, u)
+		s.SendDataSuccess(w, user)
 	}
 }
 
-func (s *UserServer) mustGetUser(r *http.Request) (*user.User, error) {
+func (s *UserServer) mustGetUser(r *http.Request) *user.User {
 	var id = r.URL.Query().Get("id")
-	var u, err = user.GetByID(id)
+	var u, err = user.GetByID(s.db, id)
 	if err != nil {
-		return u, err
+		return &user.User{}
 	} else {
-		return u, nil
+		return u
 	}
 }
 
@@ -91,40 +93,23 @@ func (s *UserServer) HandleUpdateByID(w http.ResponseWriter, r *http.Request) {
 	var newUser = &user.User{}
 	s.MustDecodeBody(r, newUser)
 	newUser.Email = strings.ToLower(newUser.Email)
-	u, err := s.mustGetUser(r)
-	if err != nil {
-		s.ErrorMessage(w, "user_not_found")
-		return
-	}
-	err = u.UpdateById(newUser)
+	u := s.mustGetUser(r)
+	user, err := u.UpdateById(s.db, u.ID)
 	if err != nil {
 		s.ErrorMessage(w, err.Error())
 	} else {
-		result, err := user.GetByID(u.ID)
-		if err != nil {
-			s.ErrorMessage(w, "user_not_found")
-			return
-		}
-		s.SendDataSuccess(w, result)
+		s.SendDataSuccess(w, user)
 	}
 }
 
 func (s *UserServer) HandleGetByID(w http.ResponseWriter, r *http.Request) {
-	u, err := s.mustGetUser(r)
-	if err != nil {
-		s.ErrorMessage(w, "user_not_found")
-		return
-	}
+	u := s.mustGetUser(r)
 	s.SendDataSuccess(w, u)
 }
 
 func (s *UserServer) HandleMarkDelete(w http.ResponseWriter, r *http.Request) {
-	u, err := s.mustGetUser(r)
-	if err != nil {
-		s.ErrorMessage(w, "user_not_found")
-		return
-	}
-	err = user.MarkDelete(u.ID)
+	u := s.mustGetUser(r)
+	err := user.MarkDelete(s.db, u.ID)
 	if err != nil {
 		s.ErrorMessage(w, err.Error())
 	} else {
@@ -138,7 +123,7 @@ func (s *UserServer) ChangePassword(w http.ResponseWriter, r *http.Request) {
 
 	s.MustDecodeBody(r, change)
 
-	u, err := user.GetByID(s.Session(w, r).UserID)
+	u, err := user.GetByID(s.db, s.Session(w, r).UserID)
 	if err != nil {
 		s.ErrorMessage(w, "user_not_found")
 		return
@@ -149,7 +134,7 @@ func (s *UserServer) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = u.UpdatePass(change.NewPassword)
+	err = u.UpdatePass(s.db, change.NewPassword)
 	if err != nil {
 		s.ErrorMessage(w, err.Error())
 	} else {

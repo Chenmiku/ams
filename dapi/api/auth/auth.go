@@ -39,7 +39,6 @@ func (s *AuthServer) MustGetUser(r *http.Request) *user.User {
 
 func (s *AuthServer) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
 	u := s.MustGetUser(r)
-
 	s.SendDataSuccess(w, map[string]interface{}{
 		"user": &u,
 	})
@@ -53,7 +52,7 @@ func (s *AuthServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	s.MustDecodeBody(r, &body)
 
-	var u, err = user.GetByEmail(s.db, strings.ToLower(body.Email))
+	var u, err = user.GetByemail(s.db, strings.ToLower(body.Email))
 	web.AssertNil(err)
 
 	if err = u.ComparePassword(body.Password); err != nil {
@@ -61,7 +60,7 @@ func (s *AuthServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var ses = session.MustNew(u)
+	var ses = session.MustNew(u, s.db)
 	s.SendData(w, map[string]interface{}{
 		"user":  u,
 		"token": ses.ID,
@@ -69,7 +68,7 @@ func (s *AuthServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *AuthServer) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	session.MustClear(r)
+	session.MustClear(r, s.db)
 	s.SendData(w, nil)
 }
 
@@ -83,17 +82,13 @@ func (s *AuthServer) handleChangePass(w http.ResponseWriter, r *http.Request) {
 
 	s.MustDecodeBody(r, &body)
 
-	var u, err = user.GetByEmail(strings.ToLower(body.Email))
-	if user.TableUser.IsErrNotFound(err) {
-		s.ErrorMessage(w, "user_not_found")
-		return
-	}
+	var u, err = user.GetByemail(s.db, strings.ToLower(body.Email))
 
 	if err := u.ComparePassword(body.OldPass); err != nil {
 		s.ErrorMessage(w, "password_not_campare")
 		return
 	}
-	err = u.UpdatePass(body.NewPass)
+	err = u.UpdatePass(s.db, body.NewPass)
 	if err != nil {
 		s.ErrorMessage(w, err.Error())
 	} else {

@@ -4,10 +4,11 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
-func (s *Session) GetAll(db *gorm.DB) (*[]Session, error) {
+func GetAll(db *gorm.DB) (*[]Session, error) {
 	sessions := []Session{}
 	err := db.Debug().Model(&Session{}).Limit(100).Find(&sessions).Error
 	if err != nil {
@@ -17,7 +18,8 @@ func (s *Session) GetAll(db *gorm.DB) (*[]Session, error) {
 	return &sessions, nil
 }
 
-func (s *Session) GetByID(db *gorm.DB, id uint) (*Session, error) {
+func GetByID(db *gorm.DB, id string) (*Session, error) {
+	var s Session
 	err := db.Debug().Model(&Session{}).Where("id = ?", id).Take(&s).Error
 	if err != nil {
 		return &Session{}, err
@@ -27,10 +29,11 @@ func (s *Session) GetByID(db *gorm.DB, id uint) (*Session, error) {
 		return &Session{}, errors.New("session_not_found")
 	}
 
-	return s, err
+	return &s, err
 }
 
-func (s *Session) GetByUserID(db *gorm.DB, uid uint) (*Session, error) {
+func GetByUserID(db *gorm.DB, uid string) (*Session, error) {
+	var s Session
 	err := db.Debug().Model(&Session{}).Where("userid = ?", uid).Take(&s).Error
 	if err != nil {
 		return &Session{}, err
@@ -40,11 +43,12 @@ func (s *Session) GetByUserID(db *gorm.DB, uid uint) (*Session, error) {
 		return &Session{}, errors.New("session_not_found")
 	}
 
-	return s, err
+	return &s, err
 }
 
 func (s *Session) Create(db *gorm.DB) (*Session, error) {
 	s.CreatedAt = time.Now()
+	s.ID = uuid.New().String()
 
 	err := db.Debug().Create(&s).Error
 	if err != nil {
@@ -54,7 +58,8 @@ func (s *Session) Create(db *gorm.DB) (*Session, error) {
 	return s, nil
 }
 
-func (s *Session) MarkDelete(db *gorm.DB, id uint) error {
+func MarkDelete(db *gorm.DB, id string) error {
+	var s Session
 	err := db.Debug().Model(&Session{}).Where("id = ?", id).Take(&s).Delete(&s).Error
 	if err != nil {
 		return err
@@ -62,7 +67,7 @@ func (s *Session) MarkDelete(db *gorm.DB, id uint) error {
 	return nil
 }
 
-func (s *Session) Update(db *gorm.DB, id uint) (*Session, error) {
+func (s *Session) Update(db *gorm.DB, id string) (*Session, error) {
 	db = db.Debug().Model(&Session{}).Where("id = ?", id).Take(&s).UpdateColumns(
 		map[string]interface{}{
 			"email":      s.Email,

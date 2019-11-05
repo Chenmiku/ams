@@ -13,7 +13,7 @@ const (
 	errUnauthorizedAccess = web.Unauthorized("unauthorized_access")
 )
 
-func Get(sessionID uint, db *gorm.DB) (*session.Session, error) {
+func Get(sessionID string, db *gorm.DB) (*session.Session, error) {
 	s, err := session.GetByID(db, sessionID)
 	if err != nil {
 		sessionLog.Error(err)

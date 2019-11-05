@@ -5,12 +5,13 @@ import (
 	"http/web"
 	"net/http"
 
-	"gopkg.in/mgo.v2/bson"
+	"github.com/jinzhu/gorm"
 )
 
 type RoleServer struct {
 	web.JsonServer
 	*http.ServeMux
+	db *gorm.DB
 }
 
 func NewRoleServer() *RoleServer {
@@ -28,13 +29,17 @@ func NewRoleServer() *RoleServer {
 func (s *RoleServer) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	var u = &role.Role{}
 	s.MustDecodeBody(r, u)
-	web.AssertNil(u.Create())
-	s.SendData(w, u)
+	role, err := u.Create(s.db)
+	if err != nil {
+		s.ErrorMessage(w, err.Error())
+	} else {
+		s.SendDataSuccess(w, role)
+	}
 }
 
 func (s *RoleServer) mustGetRole(r *http.Request) *role.Role {
 	var id = r.URL.Query().Get("id")
-	var u, err = role.GetByID(id)
+	var u, err = role.GetByID(s.db, id)
 	web.AssertNil(err)
 	return u
 }
@@ -43,43 +48,45 @@ func (s *RoleServer) HandleUpdateByID(w http.ResponseWriter, r *http.Request) {
 	var newRole = &role.Role{}
 	s.MustDecodeBody(r, newRole)
 	var u = s.mustGetRole(r)
-	web.AssertNil(u.Update(newRole))
-	s.SendData(w, nil)
+	role, err := u.UpdateById(s.db, newRole.ID)
+	if err != nil {
+		s.ErrorMessage(w, err.Error())
+	} else {
+		s.SendDataSuccess(w, role)
+	}
 }
 
 func (s *RoleServer) HandleGetByID(w http.ResponseWriter, r *http.Request) {
 	var u = s.mustGetRole(r)
-	s.SendData(w, u)
+	s.SendDataSuccess(w, u)
 }
 
 func (s *RoleServer) HandleMarkDelete(w http.ResponseWriter, r *http.Request) {
 	var u = s.mustGetRole(r)
-	web.AssertNil(role.MarkDelete(u.ID))
-	s.Success(w)
+	err := role.MarkDelete(s.db, u.ID)
+	if err != nil {
+		s.ErrorMessage(w, err.Error())
+	} else {
+		s.Success(w)
+	}
 }
 
 func (s *RoleServer) HandleAllRole(w http.ResponseWriter, r *http.Request) {
 
-	sortBy := r.URL.Query().Get("sort_by")
-	sortOrder := r.URL.Query().Get("sort_order")
+	// sortBy := r.URL.Query().Get("sort_by")
+	// sortOrder := r.URL.Query().Get("sort_order")
 
-	pageSize := StrToInt(r.URL.Query().Get("page_size"))
-	pageNumber := StrToInt(r.URL.Query().Get("page_number"))
+	// pageSize := StrToInt(r.URL.Query().Get("page_size"))
+	// pageNumber := StrToInt(r.URL.Query().Get("page_number"))
 
-	var res = []role.Role{}
-
-	where := bson.M{
-		"dtime": 0,
-	}
-
-	count, err := role.RoleTable.ReadPagingSort(where, pageSize, pageNumber, sortBy, sortOrder, &res)
+	res, err := role.GetAll(s.db)
 
 	if err != nil {
-		s.SendError(w, err)
+		s.ErrorMessage(w, err.Error())
 	} else {
-		s.SendData(w, map[string]interface{}{
+		s.SendDataSuccess(w, map[string]interface{}{
 			"roles": res,
-			"count": count,
+			//"count": count,
 		})
 	}
 }

@@ -7,9 +7,9 @@ import (
 
 	"strings"
 
+	"github.com/jinzhu/gorm"
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/net/context"
-	"github.com/jinzhu/gorm"
 )
 
 var tokenHeader = "Authorization"
@@ -22,21 +22,21 @@ func MustGet(r *http.Request, db *gorm.DB) *session.Session {
 	if strings.HasPrefix(sessionID, bearerHeader) {
 		sessionID = strings.TrimPrefix(sessionID, bearerHeader)
 	}
-	var s, e = Get(sessionID)
+	var s, e = Get(sessionID, db)
 	if e != nil {
 		panic(e)
 	}
 	return s
 }
 
-func MustAuthScope(r *http.Request) *session.Session {
+func MustAuthScope(r *http.Request, db *gorm.DB) *session.Session {
 	var query = r.URL.Query()
 	var sessionID = r.Header.Get(tokenHeader)
 	if strings.HasPrefix(sessionID, bearerHeader) {
 		sessionID = strings.TrimPrefix(sessionID, bearerHeader)
 	}
 	var scope = query.Get("scope")
-	var s, e = Get(sessionID)
+	var s, e = Get(sessionID, db)
 	if e != nil {
 		panic(e)
 	}
@@ -46,12 +46,13 @@ func MustAuthScope(r *http.Request) *session.Session {
 	return s
 }
 
-func MustClear(r *http.Request) {
+func MustClear(r *http.Request, db *gorm.DB) {
 	var sessionID = r.Header.Get(tokenHeader)
 	if strings.HasPrefix(sessionID, bearerHeader) {
 		sessionID = strings.TrimPrefix(sessionID, bearerHeader)
 	}
-	var e = session.MarkDelete(sessionID)
+
+	var e = session.MarkDelete(db, sessionID)
 	if e != nil {
 		sessionLog.Error(e, "remove_session")
 	}
@@ -105,9 +106,9 @@ func FromContext(c context.Context) (*Session, error) {
 	}
 
 	return &Session{
-		UserID:    newSession.UserID,
-		Email:     newSession.Email,
-		SessionID: newSession.ID,
-		Role:      newSession.Role,
+		UserID: newSession.UserID,
+		Email:  newSession.Email,
+		ID:     newSession.ID,
+		Role:   newSession.Role,
 	}, nil
 }

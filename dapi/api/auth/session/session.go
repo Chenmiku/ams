@@ -4,17 +4,19 @@ import (
 	"ams/dapi/o/org/user"
 	"ams/dapi/x/math"
 	"encoding/json"
-
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
 var idMaker = math.RandStringMaker{Length: 40, Prefix: "s"}
 
 type Session struct {
-	gorm.Model
-	Email  string    `json:"email"`
-	UserID string    `json:"userid"`
-	Role   user.Role `json:"role"`
+	ID        string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+	Email     string     `json:"email"`
+	UserID    string     `json:"userid"`
+	Role      user.Role  `json:"role"`
 }
 
 func (a *Session) MarshalBinary() ([]byte, error) {

@@ -2,13 +2,36 @@ package user
 
 import (
 	"errors"
+	"fmt"
+	"html"
 	"math/rand"
+	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
-func (u *User) GetByID(db *gorm.DB, id uint) (*User, error) {
+func (u *User) Prepare() {
+	u.ID = ""
+	u.Firstname = html.EscapeString(strings.TrimSpace(u.Firstname))
+	u.Lastname = html.EscapeString(strings.TrimSpace(u.Lastname))
+	u.Gender = ""
+	u.Phone = ""
+	u.PublicAvatar = ""
+	u.RoleID = ""
+	u.UpdatedAt = time.Now()
+	u.CreatedAt = time.Now()
+	u.DOB = time.Now()
+	u.Description = ""
+	u.Email = html.EscapeString(strings.TrimSpace(u.Email))
+	u.Password = html.EscapeString(strings.TrimSpace(u.Password))
+	u.Active = true
+	u.Address = ""
+}
+
+func GetByID(db *gorm.DB, id string) (*User, error) {
+	var u User
 	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).Error
 	if err != nil {
 		return &User{}, err
@@ -18,10 +41,11 @@ func (u *User) GetByID(db *gorm.DB, id uint) (*User, error) {
 		return &User{}, errors.New("user_not_found")
 	}
 
-	return u, err
+	return &u, err
 }
 
-func (u *User) GetByemail(db *gorm.DB, email string) (*User, error) {
+func GetByemail(db *gorm.DB, email string) (*User, error) {
+	var u User
 	err := db.Debug().Model(&User{}).Where("email = ?", email).Take(&u).Error
 	if err != nil {
 		return &User{}, err
@@ -31,10 +55,10 @@ func (u *User) GetByemail(db *gorm.DB, email string) (*User, error) {
 		return &User{}, errors.New("user_not_found")
 	}
 
-	return u, err
+	return &u, err
 }
 
-func (u *User) GetAll(db *gorm.DB) (*[]User, error) {
+func GetAll(db *gorm.DB) (*[]User, error) {
 	users := []User{}
 	err := db.Debug().Model(&User{}).Limit(100).Find(&users).Error
 	if err != nil {
@@ -43,19 +67,21 @@ func (u *User) GetAll(db *gorm.DB) (*[]User, error) {
 	return &users, err
 }
 
-// func (u *User) GetAllPaging(pageSize int, pageNumber int, sortBy string, sortOrder string, user *[]User) (int, err) {
+// func GetAllPaging(pageSize int, pageNumber int, sortBy string, sortOrder string, user *[]User) (int, err) {
 
 // }
 
 func (u *User) Create(db *gorm.DB) (*User, error) {
+	fmt.Println("create")
 	var err error
 	if err = u.validate(); err != nil {
 		return &User{}, errors.New("validate_user_failed")
 	}
 
-	if !u.ensureUniqueEmail(db, u.Email) {
-		return &User{}, errors.New("email_not_unique")
-	}
+	fmt.Println(u.Email)
+	// if !ensureUniqueEmail(db, u.Email) {
+	// 	return &User{}, errors.New("email_not_unique")
+	// }
 
 	//pass := randSeq(6)
 	u.Password = "123456"
@@ -67,20 +93,23 @@ func (u *User) Create(db *gorm.DB) (*User, error) {
 	}
 
 	u.CreatedAt = time.Now()
+	u.ID = uuid.New().String()
+	fmt.Println(u.ID)
 
 	err = db.Debug().Create(&u).Error
+	fmt.Println("created")
 	if err != nil {
 		return &User{}, err
+	} else {
+		return u, nil
 	}
-
-	return u, nil
 }
 
-func (u *User) UpdateById(db *gorm.DB, id uint) (*User, error) {
-	if !u.ensureUniqueEmail(db, u.Email) {
+func (u *User) UpdateById(db *gorm.DB, id string) (*User, error) {
+	if !ensureUniqueEmail(db, u.Email) {
 		return &User{}, errors.New("email_not_unique")
 	}
-	db = db.Debug().Model(&User{}).Where("id = ?", id).Take(&User{}).UpdateColumns(
+	db = db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).UpdateColumns(
 		map[string]interface{}{
 			"first_name":    u.Firstname,
 			"last_name":     u.Lastname,
@@ -109,7 +138,8 @@ func (u *User) UpdateById(db *gorm.DB, id uint) (*User, error) {
 	return u, nil
 }
 
-func (u *User) MarkDelete(db *gorm.DB, id uint) error {
+func MarkDelete(db *gorm.DB, id string) error {
+	var u User
 	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).Delete(&u).Error
 	if err != nil {
 		return err
@@ -141,8 +171,11 @@ func (u *User) UpdatePass(db *gorm.DB, newValue string) error {
 	return nil
 }
 
-func (u *User) ensureUniqueEmail(db *gorm.DB, email string) bool {
+func ensureUniqueEmail(db *gorm.DB, email string) bool {
+	fmt.Println("ensure")
+	var u User
 	err := db.Debug().Model(&User{}).Where("email = ?", email).Take(&u).Error
+	fmt.Println(err.Error())
 	if gorm.IsRecordNotFoundError(err) {
 		return true
 	}

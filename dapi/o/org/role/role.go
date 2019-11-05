@@ -1,11 +1,13 @@
 package role
 
 import (
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Role struct {
-	gorm.Model
-	Name       string   `bson:"name" json:"name"` //
-	Permission []string `bson:"permission" json:"permission"`
+	ID        string `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+	Name      string     `gorm:"type:varchar(250);not null" bson:"name" json:"name"` //
 }

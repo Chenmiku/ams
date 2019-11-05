@@ -3,14 +3,17 @@ package session
 import (
 	"ams/dapi/o/org/user"
 	"encoding/json"
-	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type Session struct {
-	gorm.Model
-	Email  string    `json:"email"`
-	UserID uint    `json:"userid"`
-	Role   user.Role `json:"role"`
+	ID        string `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time `sql:"index"`
+	Email     string     `gorm:"type:varchar(250)" json:"email"`
+	UserID    string     `json:"userid"`
+	Role      user.Role  `json:"role"`
 }
 
 func (s *Session) MarshalBinary() ([]byte, error) {

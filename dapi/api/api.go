@@ -25,10 +25,10 @@ func NewApiServer(p *config.ProjectConfig) *ApiServer {
 	s.Handle("/auth/", http.StripPrefix("/auth", auth.NewAuthServer()))
 	s.Handle("/private/", http.StripPrefix("/private", private.NewPrivateServer()))
 	s.Handle("/public/", http.StripPrefix("/public", public.NewPublicServer(p)))
-	// s.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
-	// 	businessConfig, _ := json.Marshal(p.Business)
-	// 	w.Write(businessConfig)
-	// })
+	s.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+		businessConfig, _ := json.Marshal(p.Business)
+		w.Write(businessConfig)
+	})
 	return s
 }
 
