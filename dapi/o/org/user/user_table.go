@@ -1,58 +1,123 @@
 package user
 
 import (
-	"ams/dapi/o/model"
 	"errors"
 	"math/rand"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
-func (b *User) CreateTable() {
-	model.NewTable(b)
-}
-
-func (b *User) Create() error {
-	if err := b.validate(); err != nil {
-		return errors.New("validate_user_failed")
+func (u *User) GetByID(db *gorm.DB, id uint) (*User, error) {
+	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).Error
+	if err != nil {
+		return &User{}, err
 	}
 
-	// if err := b.ensureUniqueEmail(); err != nil {
-	// 	return errors.New("email_already_exists")
-	// }
+	if gorm.IsRecordNotFoundError(err) {
+		return &User{}, errors.New("user_not_found")
+	}
+
+	return u, err
+}
+
+func (u *User) GetByemail(db *gorm.DB, email string) (*User, error) {
+	err := db.Debug().Model(&User{}).Where("email = ?", email).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+
+	if gorm.IsRecordNotFoundError(err) {
+		return &User{}, errors.New("user_not_found")
+	}
+
+	return u, err
+}
+
+func (u *User) GetAll(db *gorm.DB) (*[]User, error) {
+	users := []User{}
+	err := db.Debug().Model(&User{}).Limit(100).Find(&users).Error
+	if err != nil {
+		return &[]User{}, err
+	}
+	return &users, err
+}
+
+// func (u *User) GetAllPaging(pageSize int, pageNumber int, sortBy string, sortOrder string, user *[]User) (int, err) {
+
+// }
+
+func (u *User) Create(db *gorm.DB) (*User, error) {
+	var err error
+	if err = u.validate(); err != nil {
+		return &User{}, errors.New("validate_user_failed")
+	}
+
+	if !u.ensureUniqueEmail(db, u.Email) {
+		return &User{}, errors.New("email_not_unique")
+	}
 
 	//pass := randSeq(6)
-	b.Password = "123456"
+	u.Password = "123456"
 
-	var p = password(b.Password)
+	var p = password(u.Password)
 	// replace
-	if err := p.HashTo(&b.Password); err != nil {
-		return errors.New("hash_password_failed")
+	if err = p.HashTo(&u.Password); err != nil {
+		return &User{}, errors.New("hash_password_failed")
 	}
 
-	b.CreatedAt = time.Now()
+	u.CreatedAt = time.Now()
 
-	model.Create(b)
+	err = db.Debug().Create(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+
+	return u, nil
+}
+
+func (u *User) UpdateById(db *gorm.DB, id uint) (*User, error) {
+	if !u.ensureUniqueEmail(db, u.Email) {
+		return &User{}, errors.New("email_not_unique")
+	}
+	db = db.Debug().Model(&User{}).Where("id = ?", id).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"first_name":    u.Firstname,
+			"last_name":     u.Lastname,
+			"email":         u.Email,
+			"password":      u.Password,
+			"address":       u.Address,
+			"public_avatar": u.PublicAvatar,
+			"role_id":       u.RoleID,
+			"phone":         u.Phone,
+			"dob":           u.DOB,
+			"active":        u.Active,
+			"gender":        u.Gender,
+			"description":   u.Description,
+			"update_at":     time.Now(),
+		},
+	)
+	if db.Error != nil {
+		return &User{}, db.Error
+	}
+
+	// This is the display the updated user
+	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).Error
+	if err != nil {
+		return &User{}, err
+	}
+	return u, nil
+}
+
+func (u *User) MarkDelete(db *gorm.DB, id uint) error {
+	err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&u).Delete(&u).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
-func MarkDelete(b *User) error {
-	model.MarkDelete(b)
-	return nil
-}
-
-func (v *User) UpdateById(newvalue *User) error {
-	newvalue.validate()
-	// if newvalue.Email != v.Email {
-	// 	if err := newvalue.ensureUniqueEmail(); err != nil {
-	// 		return errors.New("email_already_exists")
-	// 	}
-	// }
-
-	model.UpdateByID(v, newvalue)
-	return nil
-}
-
-func (v *User) UpdatePass(newValue string) error {
+func (u *User) UpdatePass(db *gorm.DB, newValue string) error {
 	var update = map[string]interface{}{
 		"password": newValue,
 	}
@@ -64,8 +129,28 @@ func (v *User) UpdatePass(newValue string) error {
 		}
 		update["password"] = newValue
 	}
-	model.UpdateByID(v, update)
+
+	db = db.Debug().Model(&User{}).Where("id = ?", u.ID).Take(&User{}).UpdateColumns(
+		map[string]interface{}{
+			"password": newValue,
+		},
+	)
+	if db.Error != nil {
+		return db.Error
+	}
 	return nil
+}
+
+func (u *User) ensureUniqueEmail(db *gorm.DB, email string) bool {
+	err := db.Debug().Model(&User{}).Where("email = ?", email).Take(&u).Error
+	if gorm.IsRecordNotFoundError(err) {
+		return true
+	}
+	return false
+}
+
+func NewCleanUser() interface{} {
+	return &User{}
 }
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")

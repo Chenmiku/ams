@@ -30,16 +30,3 @@ type ChangePassword struct {
 	OldPassword string `bson:"old_password" json:"old_password"`
 	NewPassword string `bson:"new_password" json:"new_password"`
 }
-
-func NewCleanUser() interface{} {
-	return &User{}
-}
-
-// func (v *User) ensureUniqueEmail() error {
-// 	if err := TableUser.NotExist(map[string]interface{}{
-// 		"email": v.Email,
-// 	}); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }

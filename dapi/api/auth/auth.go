@@ -1,16 +1,19 @@
 package auth
 
 import (
-	"http/web"
 	"ams/dapi/api/auth/session"
 	"ams/dapi/o/org/user"
+	"http/web"
 	"net/http"
 	"strings"
+
+	"github.com/jinzhu/gorm"
 )
 
 type AuthServer struct {
 	*http.ServeMux
 	web.JsonServer
+	db *gorm.DB
 }
 
 func NewAuthServer() *AuthServer {
@@ -24,22 +27,18 @@ func NewAuthServer() *AuthServer {
 	return s
 }
 
-func (s *AuthServer) MustGetUser(r *http.Request) (*user.User, error) {
-	var id = session.MustGet(r).UserID
-	var v, err = user.GetByID(id)
+func (s *AuthServer) MustGetUser(r *http.Request) *user.User {
+	var id = session.MustGet(r, s.db).UserID
+	var v, err = user.GetByID(s.db, id)
 	if err != nil {
-		return v, err
+		return &user.User{}
 	} else {
-		return v, nil
+		return v
 	}
 }
 
 func (s *AuthServer) HandleGetProfile(w http.ResponseWriter, r *http.Request) {
-	u, err := s.MustGetUser(r)
-	if user.TableUser.IsErrNotFound(err) {
-		s.ErrorMessage(w, "user_not_found")
-		return
-	}
+	u := s.MustGetUser(r)
 
 	s.SendDataSuccess(w, map[string]interface{}{
 		"user": &u,
@@ -54,15 +53,11 @@ func (s *AuthServer) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	s.MustDecodeBody(r, &body)
 
-	var u, err = user.GetByEmail(strings.ToLower(body.Email))
-	if user.TableUser.IsErrNotFound(err) {
-		s.SendError(w, err) //(w, "user_not_found")
-		return
-	}
+	var u, err = user.GetByEmail(s.db, strings.ToLower(body.Email))
 	web.AssertNil(err)
 
 	if err = u.ComparePassword(body.Password); err != nil {
-		s.SendError(w, err) //(w, "password_not_campare")
+		s.SendError(w, err)
 		return
 	}
 

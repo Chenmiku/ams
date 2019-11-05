@@ -19,7 +19,7 @@ func (o DatabaseConfig) String() string {
 }
 
 func (o *DatabaseConfig) Check() {
-	db, err := gorm.Open(o.Driver, o.UserName+":"+o.PassWord+"@tcp("+o.DBHost+")/"+o.DBName+"?charset=utf8&parseTime=True")
+	db, err := gorm.Open(o.Driver, o.UserName+":"+o.PassWord+"@tcp("+o.DBHost+")/"+o.DBName+"?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
 		panic(err.Error())
 	}

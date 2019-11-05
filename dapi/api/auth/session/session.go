@@ -1,19 +1,20 @@
 package session
 
 import (
-	"encoding/json"
 	"ams/dapi/o/org/user"
 	"ams/dapi/x/math"
+	"encoding/json"
+
+	"github.com/jinzhu/gorm"
 )
 
 var idMaker = math.RandStringMaker{Length: 40, Prefix: "s"}
 
 type Session struct {
-	SessionID string    `json:"id"`
-	Email     string    `json:"email"`
-	UserID    string    `json:"user_id"`
-	Role      user.Role `json:"role"`
-	CTime     int64     `json:"ctime"`
+	gorm.Model
+	Email  string    `json:"email"`
+	UserID string    `json:"userid"`
+	Role   user.Role `json:"role"`
 }
 
 func (a *Session) MarshalBinary() ([]byte, error) {

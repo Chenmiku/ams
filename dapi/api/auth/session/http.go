@@ -9,6 +9,7 @@ import (
 
 	"github.com/mitchellh/mapstructure"
 	"golang.org/x/net/context"
+	"github.com/jinzhu/gorm"
 )
 
 var tokenHeader = "Authorization"
@@ -16,7 +17,7 @@ var bearerHeader = "Bearer"
 var accessToken = "token"
 var sessionLog = mlog.NewTagLog("session_log")
 
-func MustGet(r *http.Request) *session.Session {
+func MustGet(r *http.Request, db *gorm.DB) *session.Session {
 	var sessionID = r.Header.Get(tokenHeader)
 	if strings.HasPrefix(sessionID, bearerHeader) {
 		sessionID = strings.TrimPrefix(sessionID, bearerHeader)

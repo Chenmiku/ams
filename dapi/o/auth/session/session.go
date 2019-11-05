@@ -2,23 +2,21 @@ package session
 
 import (
 	"ams/dapi/o/org/user"
-	"db/mgo"
 	"encoding/json"
+	"github.com/jinzhu/gorm"
 )
 
 type Session struct {
-	mgo.BaseModel `bson:",inline"`
-	Email         string    `json:"email"`
-	UserID        string    `json:"userid"`
-	BranchID      string    `json:"branch_id"`
-	Role          user.Role `json:"role"`
-	CTime         int64     `json:"ctime"`
+	gorm.Model
+	Email  string    `json:"email"`
+	UserID uint    `json:"userid"`
+	Role   user.Role `json:"role"`
 }
 
-func (a *Session) MarshalBinary() ([]byte, error) {
-	return json.Marshal(a)
+func (s *Session) MarshalBinary() ([]byte, error) {
+	return json.Marshal(s)
 }
 
-func (a *Session) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, a)
+func (s *Session) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, s)
 }
