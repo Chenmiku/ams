@@ -8,4 +8,3 @@ import (
 func (b *Role) CreateTable() {
 	model.NewTable(b)
 }
-
