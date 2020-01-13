@@ -2,10 +2,9 @@ package web
 
 import (
 	"encoding/json"
+	"github.com/golang/glog"
 	"net/http"
 	"runtime/debug"
-
-	"github.com/golang/glog"
 )
 
 type JsonServer struct{}
@@ -26,10 +25,7 @@ func (s *JsonServer) SendError(w http.ResponseWriter, err error) {
 			err = ErrServerError
 			w.WriteHeader(http.StatusInternalServerError)
 		}
-		// s.sendJson(w, map[string]string{
-		// 	"status": "error",
-		// 	"error":  err.Error(),
-		// })
+		
 		s.sendJson(w, map[string]interface{}{
 			"success": false,
 			"message": err.Error(),
@@ -37,28 +33,19 @@ func (s *JsonServer) SendError(w http.ResponseWriter, err error) {
 	}
 }
 
-func (s *JsonServer) SendErrorMessage(w http.ResponseWriter, err error) {
-	if err != nil {
-		w.Header().Add("Content-Type", "application/json")
-		if werr, ok := err.(IWebError); ok {
-			w.WriteHeader(werr.StatusCode())
-		} else {
-			glog.Error(err, string(debug.Stack()))
-			err = ErrServerError
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-		s.sendJson(w, map[string]interface{}{
-			"success": false,
-			"message": err.Error(),
-		})
-	}
+func (s *JsonServer) ErrorMessage(w http.ResponseWriter, message string) {
+	w.Header().Add("Content-Type", "application/json")
+	s.sendJson(w, map[string]interface{}{
+		"success": false,
+		"message": message,
+	})
 }
 
 func (s *JsonServer) SendCustomError(w http.ResponseWriter, err error) {
 	if err != nil {
 		w.Header().Add("Content-Type", "application/json")
-		s.sendJson(w, map[string]string{
-			"status": "error",
+		s.sendJson(w, map[string]interface{}{
+			"success": true,
 			"error":  err.Error(),
 		})
 	}
@@ -67,7 +54,7 @@ func (s *JsonServer) SendCustomError(w http.ResponseWriter, err error) {
 func (s *JsonServer) SendErrorData(w http.ResponseWriter, data interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	s.sendJson(w, map[string]interface{}{
-		"status": "error",
+		"success": true,
 		"data":   data,
 	})
 
@@ -82,14 +69,6 @@ func (s *JsonServer) SendJson(w http.ResponseWriter, v interface{}) {
 	s.sendJson(w, v)
 }
 
-func (s *JsonServer) SendData(w http.ResponseWriter, v interface{}) {
-	w.Header().Add("Content-Type", "application/json")
-	s.sendJson(w, map[string]interface{}{
-		"status": "success",
-		"data":   v,
-	})
-}
-
 func (s *JsonServer) SendDataSuccess(w http.ResponseWriter, v interface{}) {
 	w.Header().Add("Content-Type", "application/json")
 	s.sendJson(w, map[string]interface{}{
@@ -98,16 +77,17 @@ func (s *JsonServer) SendDataSuccess(w http.ResponseWriter, v interface{}) {
 	})
 }
 
-func (s *JsonServer) Success(w http.ResponseWriter) {
-	s.SendData(w, nil)
-}
-
-func (s *JsonServer) ErrorMessage(w http.ResponseWriter, message string) {
+func (s *JsonServer) SendCreateSuccess(w http.ResponseWriter, v interface{}) {
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Add("Content-Type", "application/json")
 	s.sendJson(w, map[string]interface{}{
-		"success": false,
-		"message": message,
+		"success": true,
+		"data":    v,
 	})
+}
+
+func (s *JsonServer) Success(w http.ResponseWriter) {
+	s.SendDataSuccess(w, nil)
 }
 
 func (s *JsonServer) Send(w http.ResponseWriter, data interface{}, err ...error) {
@@ -115,7 +95,7 @@ func (s *JsonServer) Send(w http.ResponseWriter, data interface{}, err ...error)
 		s.SendError(w, err[0])
 		return
 	}
-	s.SendData(w, data)
+	s.SendDataSuccess(w, data)
 }
 
 func (s *JsonServer) DecodeBody(r *http.Request, v interface{}) error {
@@ -141,3 +121,4 @@ func (s *JsonServer) Recover(w http.ResponseWriter) {
 		}
 	}
 }
+

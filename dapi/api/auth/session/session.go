@@ -1,22 +1,20 @@
 package session
 
 import (
-	"ams/dapi/o/org/user"
-	"ams/dapi/x/math"
 	"encoding/json"
-	"time"
+	"ams_system/dapi/o/org/user"
+	"ams_system/dapi/x/math"
 )
 
 var idMaker = math.RandStringMaker{Length: 40, Prefix: "s"}
 
+// session struct 
 type Session struct {
-	ID        string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
-	Email     string     `json:"email"`
-	UserID    string     `json:"userid"`
-	Role      user.Role  `json:"role"`
+	SessionID string    `json:"id"`
+	Email     string    `json:"email"`
+	UserID    string    `json:"user_id"`
+	Role      user.Role `json:"role"`
+	CTime     int64     `json:"ctime"`
 }
 
 func (a *Session) MarshalBinary() ([]byte, error) {

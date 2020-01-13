@@ -1,5 +1,13 @@
 package middlewares
 
+import (
+	"errors"
+	"net/http"
+
+	"github.com/victorsteven/fullstack/api/auth"
+	"github.com/victorsteven/fullstack/api/responses"
+)
+
 func SetMiddlewareJSON(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
@@ -17,4 +25,3 @@ func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	}
 }
-

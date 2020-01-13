@@ -1,33 +1,34 @@
 package session
 
 import (
-	"ams/dapi/o/auth/session"
-	"ams/dapi/o/org/user"
-	"github.com/jinzhu/gorm"
+	"ams_system/dapi/o/auth/session"
+	"ams_system/dapi/o/org/user"
 	"http/web"
 	"time"
 )
 
-func New(u *user.User, db *gorm.DB) (*session.Session, error) {
+// create new session associate with user login
+func New(u *user.User) (*session.Session, error) {
 
 	var s = &session.Session{
-		UserID:    u.ID,
-		Email:     u.Email,
-		CreatedAt: time.Now(),
+		UserID: u.ID,
+		Email:  u.Email,
+		CTime:  time.Now().Unix(),
 	}
 
-	var se, err = s.Create(db)
+	var err = s.Create()
 	if err != nil {
 		sessionLog.Error(err)
 		return nil, web.InternalServerError("save_session_failed")
 	}
-	return se, nil
+	return s, nil
 }
 
-func MustNew(u *user.User, db *gorm.DB) *session.Session {
-	s, err := New(u, db)
-	if err != nil {
-		panic(err)
+// new 
+func MustNew(u *user.User) *session.Session {
+	s, e := New(u)
+	if e != nil {
+		panic(e)
 	}
 	return s
 }

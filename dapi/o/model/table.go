@@ -1,20 +1,15 @@
 package model
 
 import (
-	// "ams/dapi/config/cons"
-	"github.com/jinzhu/gorm"
+	"db/mgo"
+	"ams_system/dapi/config/cons"
 )
 
-func NewTable(v interface{}) {
-	db, err := gorm.Open("mysql", "root:idfcau1992@tcp(127.0.0.1:3306)/ams?charset=utf8&parseTime=True")
-	checkError(err)
-	defer db.Close()
-
-	db.AutoMigrate(v)
+func NewTable(name string) *mgo.Table {
+	var db = GetDB()
+	return mgo.NewTable(db, name)
 }
 
-func checkError(err error) {
-	if err != nil {
-		panic(err.Error())
-	}
+func GetDB() *mgo.Database {
+	return mgo.GetDB(cons.DB_ID)
 }

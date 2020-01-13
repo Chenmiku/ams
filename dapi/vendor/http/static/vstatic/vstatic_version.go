@@ -7,7 +7,7 @@ import (
 	"http/static"
 	"http/static/ustatic"
 	"io/ioutil"
-	"ams/dapi/x/mlog"
+	"ams_system/dapi/x/mlog"
 	"net/http"
 	"os"
 	"path/filepath"

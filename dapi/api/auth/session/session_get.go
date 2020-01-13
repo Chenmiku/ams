@@ -1,10 +1,8 @@
 package session
 
 import (
-	"ams/dapi/o/auth/session"
 	"http/web"
-
-	"github.com/jinzhu/gorm"
+	"ams_system/dapi/o/auth/session"
 )
 
 const (
@@ -13,9 +11,13 @@ const (
 	errUnauthorizedAccess = web.Unauthorized("unauthorized_access")
 )
 
-func Get(sessionID string, db *gorm.DB) (*session.Session, error) {
-	s, err := session.GetByID(db, sessionID)
+// Get session by session id 
+func Get(sessionID string) (*session.Session, error) {
+	var s, err = session.GetByID(sessionID)
 	if err != nil {
+		if session.TableSession.IsErrNotFound(err) {
+			return nil, errSessionNotFound
+		}
 		sessionLog.Error(err)
 		return nil, errReadSessonFailed
 	}

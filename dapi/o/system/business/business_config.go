@@ -1,13 +1,13 @@
 package business
 
 import (
+	"db/mgo"
 	"fmt"
-	"github.com/jinzhu/gorm"
 )
 
 type BusinessConfig struct {
-	gorm.Model
-	General GeneralConfig `bson:"general" json:"general"`
+	mgo.BaseModel `bson:",inline"`
+	General       GeneralConfig `bson:"general" json:"general"`
 }
 
 func (c BusinessConfig) String() string {

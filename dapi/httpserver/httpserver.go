@@ -1,10 +1,12 @@
 package httpserver
 
 import (
-	"ams/dapi/config"
-	"ams/dapi/x/mlog"
 	"github.com/golang/glog"
+	"ams_system/dapi/config"
+	"ams_system/dapi/x/mlog"
 	"net/http"
+	"fmt"
+	"time"
 )
 
 var logger = mlog.NewTagLog("httpserver")
@@ -30,7 +32,11 @@ func (s *ProjectHttpServer) listen() {
 		Addr:         addr,
 		TLSNextProto: nil,
 		Handler:      s.handler,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
 	}
+	fmt.Println("server:", addr)
 	logger.Infof(0, "Listening on http://%s\n", addr)
 	if err := server.ListenAndServe(); err != nil {
 		glog.Errorf("Server %s", err.Error())

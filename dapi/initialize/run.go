@@ -1,7 +1,7 @@
 package initialize
 
 import (
-	"ams/dapi/httpserver"
+	"ams_system/dapi/httpserver"
 )
 
 var server *httpserver.ProjectHttpServer

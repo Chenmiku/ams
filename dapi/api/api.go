@@ -1,12 +1,12 @@
 package api
 
 import (
-	"ams/dapi/api/auth"
-	"ams/dapi/api/private"
-	"ams/dapi/api/public"
-	"ams/dapi/config"
 	"encoding/json"
 	"http/web"
+	"ams_system/dapi/api/auth"
+	"ams_system/dapi/api/private"
+	"ams_system/dapi/api/public"
+	"ams_system/dapi/config"
 
 	"net/http"
 )

@@ -1,25 +1,25 @@
 package session
 
 import (
-	"ams/dapi/o/org/user"
+	"db/mgo"
 	"encoding/json"
-	"time"
+	"ams_system/dapi/o/org/user"
 )
 
+// Session
 type Session struct {
-	ID        string `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time `sql:"index"`
-	Email     string     `gorm:"type:varchar(250)" json:"email"`
-	UserID    string     `json:"userid"`
-	Role      user.Role  `json:"role"`
+	mgo.BaseModel `bson:",inline"`
+	Email         string    `json:"email"`
+	UserID        string    `json:"userid"`
+	BranchID      string    `json:"branch_id"`
+	Role          user.Role `json:"role"`
+	CTime         int64     `json:"ctime"`
 }
 
-func (s *Session) MarshalBinary() ([]byte, error) {
-	return json.Marshal(s)
+func (a *Session) MarshalBinary() ([]byte, error) {
+	return json.Marshal(a)
 }
 
-func (s *Session) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, s)
+func (a *Session) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, a)
 }

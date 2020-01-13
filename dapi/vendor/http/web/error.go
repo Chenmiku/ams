@@ -55,6 +55,16 @@ func (e NotFound) StatusCode() int {
 	return http.StatusNotFound
 }
 
+type TooManyRequest string
+
+func (e TooManyRequest) Error() string {
+	return string(e)
+}
+
+func (e TooManyRequest) StatusCode() int {
+	return http.StatusTooManyRequests
+}
+
 func AssertNil(err error) {
 	if err != nil {
 		panic(err)
@@ -62,3 +72,7 @@ func AssertNil(err error) {
 }
 
 var ErrServerError = InternalServerError("Internal Server Error")
+var ErrBadRequest = BadRequest("Bad Request")
+var ErrUnauthorized = Unauthorized("Unauthorized")
+var ErrNotFound = NotFound("Not Found")
+var ErrTooManyRequest = TooManyRequest("Too Many Request")

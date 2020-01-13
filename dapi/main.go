@@ -1,13 +1,14 @@
 package main
 
 import (
-	"ams/dapi/config"
-	"ams/dapi/initialize"
+	"context"
+	"ams_system/dapi/config"
+	"ams_system/dapi/initialize"
 )
 
 func main() {
-	// ctx, cancel := context.WithCancel(context.Background())
-	// defer cancel()
-	initialize.Start(config.ReadConfig())
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	initialize.Start(ctx, config.ReadConfig())
 	initialize.Wait()
 }

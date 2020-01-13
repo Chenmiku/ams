@@ -12,6 +12,7 @@ type StaticConfig struct {
 	AppUpdate     string
 	PlayerFolder  string
 	PlayerUpdate  string
+	SellerFolder  string
 }
 
 func (u *StaticConfig) Check() {
@@ -29,6 +30,10 @@ func (u *StaticConfig) Check() {
 
 	if u.PlayerFolder == "" {
 		u.PlayerFolder = u.GetSubFolder("player")
+	}
+
+	if u.SellerFolder == "" {
+		u.SellerFolder = u.GetSubFolder("seller")
 	}
 
 }
