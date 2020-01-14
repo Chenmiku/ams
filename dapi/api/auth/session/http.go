@@ -1,8 +1,8 @@
 package session
 
 import (
-	"ams_system/dapi/o/auth/session"
-	"ams_system/dapi/x/mlog"
+	"ams/dapi/o/auth/session"
+	"ams/dapi/x/mlog"
 	"net/http"
 
 	"github.com/mitchellh/mapstructure"

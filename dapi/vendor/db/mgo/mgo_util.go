@@ -1,7 +1,7 @@
 package mgo
 
 import (
-	"ams_system/dapi/x/mlog"
+	"ams/dapi/x/mlog"
 )
 
 var mongoDBLog = mlog.NewTagLog("MongoDB")

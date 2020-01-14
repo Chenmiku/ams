@@ -1,7 +1,7 @@
 package session
 
 import (
-	"ams_system/dapi/o/model"
+	"ams/dapi/o/model"
 )
 
 var TableSession = model.NewTable("session")
@@ -11,7 +11,7 @@ func (b *Session) Create() error {
 }
 
 func MarkDelete(id string) error {
-	return TableSession.MarkDelete(id)
+	return TableSession.Delete(id)
 }
 
 func (v *Session) Update(newValue *Session) error {

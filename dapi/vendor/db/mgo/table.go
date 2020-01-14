@@ -45,6 +45,10 @@ func (t *Table) MarkDelete(id string) error {
 	return t.UnsafeUpdateByID(id, data)
 }
 
+func (t *Table) Delete(id string) error {
+	return t.UnsafeDeleteByID(id)
+}
+
 func (t *Table) ReadAll(ptr interface{}) error {
 	return t.UnsafeReadMany(bson.M{"dtime": 0}, ptr)
 }

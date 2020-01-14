@@ -2,8 +2,8 @@ package httpserver
 
 import (
 	"github.com/golang/glog"
-	"ams_system/dapi/config"
-	"ams_system/dapi/x/mlog"
+	"ams/dapi/config"
+	"ams/dapi/x/mlog"
 	"net/http"
 	"fmt"
 	"time"

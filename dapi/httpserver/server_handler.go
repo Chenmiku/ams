@@ -1,7 +1,7 @@
 package httpserver
 
 import (
-	"ams_system/dapi/api"
+	"ams/dapi/api"
 	"http/gziphandler"
 	"http/static/vstatic"
 	"net/http"

@@ -1,13 +1,16 @@
 package org
 
 import (
-	"ams_system/dapi/api/auth/session"
-	"ams_system/dapi/o/org/user"
+	"ams/dapi/api/auth/session"
+	"ams/dapi/o/org/user"
 	"http/web"
 	"net/http"
 	"strconv"
 	"strings"
+	"ams/dapi/x/mlog"
 )
+
+var logger = mlog.NewTagLog("user")
 
 type UserServer struct {
 	web.JsonServer
@@ -73,6 +76,7 @@ func (s *UserServer) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	u.Email = strings.ToLower(u.Email)
 	err := u.Create()
 	if err != nil {
+		logger.Fatalf("create user with fail %s", err.Error())
 		s.ErrorMessage(w, err.Error())
 	} else {
 		s.SendDataSuccess(w, u)

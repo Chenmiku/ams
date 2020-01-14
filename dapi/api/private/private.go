@@ -1,7 +1,7 @@
 package private
 
 import (
-	"ams_system/dapi/api/auth/session"
+	"ams/dapi/api/auth/session"
 	"http/web"
 	"net/http"
 )

@@ -2,8 +2,8 @@ package auth
 
 import (
 	"http/web"
-	"ams_system/dapi/api/auth/session"
-	"ams_system/dapi/o/org/user"
+	"ams/dapi/api/auth/session"
+	"ams/dapi/o/org/user"
 	"net/http"
 	"strings"
 )

@@ -2,8 +2,8 @@ package station
 
 import (
 	"fmt"
-	"ams_system/dapi/config/shared"
-	"ams_system/dapi/x/conf"
+	"ams/dapi/config/shared"
+	"ams/dapi/x/conf"
 	"net/url"
 )
 

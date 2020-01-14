@@ -2,8 +2,8 @@ package session
 
 import (
 	"encoding/json"
-	"ams_system/dapi/o/org/user"
-	"ams_system/dapi/x/math"
+	"ams/dapi/o/org/user"
+	"ams/dapi/x/math"
 )
 
 var idMaker = math.RandStringMaker{Length: 40, Prefix: "s"}

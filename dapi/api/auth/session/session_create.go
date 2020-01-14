@@ -1,8 +1,8 @@
 package session
 
 import (
-	"ams_system/dapi/o/auth/session"
-	"ams_system/dapi/o/org/user"
+	"ams/dapi/o/auth/session"
+	"ams/dapi/o/org/user"
 	"http/web"
 	"time"
 )

@@ -1,11 +1,8 @@
 package public
 
 import (
-	"ams_system/dapi/api/public/org"
-	"ams_system/dapi/api/public/address"
-	"ams_system/dapi/api/public/addresskey"
-	"ams_system/dapi/api/public/transaction"
-	"ams_system/dapi/config"
+	"ams/dapi/api/public/org"
+	"ams/dapi/config"
 	"http/web"
 	"net/http"
 )
@@ -21,8 +18,5 @@ func NewPublicServer(pc *config.ProjectConfig) *PublicServer {
 	}
 
 	s.Handle("/org/", http.StripPrefix("/org", org.NewOrgServer()))
-	s.Handle("/address/", http.StripPrefix("/address", address.NewAddressServer()))
-	s.Handle("/transaction/", http.StripPrefix("/transaction", transaction.NewTransactionServer()))
-	s.Handle("/addresskey/", http.StripPrefix("/addresskey", addresskey.NewAddressKeyServer()))
 	return s
 }

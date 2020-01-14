@@ -2,10 +2,10 @@ package config
 
 import (
 	"fmt"
-	"ams_system/dapi/config/database"
-	"ams_system/dapi/config/shared"
-	"ams_system/dapi/config/station"
-	"ams_system/dapi/o/system/business"
+	"ams/dapi/config/database"
+	"ams/dapi/config/shared"
+	"ams/dapi/config/station"
+	"ams/dapi/o/system/business"
 )
 
 var logger = shared.ConfigLog
